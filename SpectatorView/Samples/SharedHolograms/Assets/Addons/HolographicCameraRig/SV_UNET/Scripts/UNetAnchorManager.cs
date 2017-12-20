@@ -5,9 +5,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using HoloToolkit.Unity;
-using UnityEngine.VR.WSA.Sharing;
-using UnityEngine.VR.WSA;
-using UnityEngine.VR.WSA.Persistence;
+
+
+
 using System;
 
 namespace SpectatorView
@@ -252,10 +252,10 @@ namespace SpectatorView
             GenericNetworkTransmitter.Instance.SetData(null);
             objectToAnchor = UNetAnchorManager.Instance.gameObject;
 
-            WorldAnchor worldAnchor = objectToAnchor.GetComponent<WorldAnchor>();
+            UnityEngine.XR.WSA.WorldAnchor worldAnchor = objectToAnchor.GetComponent<UnityEngine.XR.WSA.WorldAnchor>();
             if (worldAnchor == null)
             {
-                worldAnchor = objectToAnchor.AddComponent<WorldAnchor>();
+                worldAnchor = objectToAnchor.AddComponent<UnityEngine.XR.WSA.WorldAnchor>();
             }
 
             Debug.Log("Checking for saved anchor: " + AnchorName);
@@ -274,11 +274,11 @@ namespace SpectatorView
                 exportingAnchorName = Guid.NewGuid().ToString();
             }
             
-            WorldAnchorTransferBatch watb = new WorldAnchorTransferBatch();
+            UnityEngine.XR.WSA.Sharing.WorldAnchorTransferBatch watb = new UnityEngine.XR.WSA.Sharing.WorldAnchorTransferBatch();
 
             Debug.Log("exporting " + exportingAnchorName);
             watb.AddWorldAnchor(exportingAnchorName, worldAnchor);
-            WorldAnchorTransferBatch.ExportAsync(watb, WriteBuffer, ExportComplete);
+            UnityEngine.XR.WSA.Sharing.WorldAnchorTransferBatch.ExportAsync(watb, WriteBuffer, ExportComplete);
 
             SaveAnchor(exportingAnchorName);
         }
@@ -314,7 +314,7 @@ namespace SpectatorView
                 Debug.LogError("AnchorStore is null.");
             }
 
-            WorldAnchorStore anchorStore = SV_WorldAnchorManager.Instance.AnchorStore;
+            UnityEngine.XR.WSA.Persistence.WorldAnchorStore anchorStore = SV_WorldAnchorManager.Instance.AnchorStore;
             string[] ids = anchorStore.GetAllIds();
             Debug.Log(ids.Length + " stored anchors.");
             for (int index = 0; index < ids.Length; index++)
@@ -354,22 +354,22 @@ namespace SpectatorView
         /// </summary>
         /// <param name="status">Tracks if the import worked</param>
         /// <param name="wat">The WorldAnchorTransferBatch that has the anchor information.</param>
-        private void ImportComplete(SerializationCompletionReason status, WorldAnchorTransferBatch wat)
+        private void ImportComplete(UnityEngine.XR.WSA.Sharing.SerializationCompletionReason status, UnityEngine.XR.WSA.Sharing.WorldAnchorTransferBatch wat)
         {
-            if (status == SerializationCompletionReason.Succeeded && wat.GetAllIds().Length > 0)
+            if (status == UnityEngine.XR.WSA.Sharing.SerializationCompletionReason.Succeeded && wat.GetAllIds().Length > 0)
             {
                 Debug.Log("Import complete");
 
                 string first = wat.GetAllIds()[0];
                 Debug.Log("Anchor name: " + first);
 
-                WorldAnchor existingAnchor = objectToAnchor.GetComponent<WorldAnchor>();
+                UnityEngine.XR.WSA.WorldAnchor existingAnchor = objectToAnchor.GetComponent<UnityEngine.XR.WSA.WorldAnchor>();
                 if (existingAnchor != null)
                 {
                     DestroyImmediate(existingAnchor);
                 }
 
-                WorldAnchor anchor = wat.LockObject(first, objectToAnchor);
+                UnityEngine.XR.WSA.WorldAnchor anchor = wat.LockObject(first, objectToAnchor);
                 anchor.OnTrackingChanged += Anchor_OnTrackingChanged;
                 Anchor_OnTrackingChanged(anchor, anchor.isLocated);
                 
@@ -383,7 +383,7 @@ namespace SpectatorView
             }
         }
 
-        private void Anchor_OnTrackingChanged(WorldAnchor self, bool located)
+        private void Anchor_OnTrackingChanged(UnityEngine.XR.WSA.WorldAnchor self, bool located)
         {
             if (located)
             {
@@ -406,9 +406,9 @@ namespace SpectatorView
         /// Called when serializing an anchor is complete.
         /// </summary>
         /// <param name="status">If the serialization succeeded.</param>
-        private void ExportComplete(SerializationCompletionReason status)
+        private void ExportComplete(UnityEngine.XR.WSA.Sharing.SerializationCompletionReason status)
         {
-            if (status == SerializationCompletionReason.Succeeded && exportingAnchorBytes.Count > minTrustworthySerializedAnchorDataSize)
+            if (status == UnityEngine.XR.WSA.Sharing.SerializationCompletionReason.Succeeded && exportingAnchorBytes.Count > minTrustworthySerializedAnchorDataSize)
             {
                 AnchorName = exportingAnchorName;
                 anchorData = exportingAnchorBytes.ToArray();
@@ -425,7 +425,7 @@ namespace SpectatorView
                 Debug.Log("Create anchor failed "+status+" "+exportingAnchorBytes.Count);
                 exportingAnchorBytes.Clear();
                 objectToAnchor = UNetAnchorManager.Instance.gameObject;
-                DestroyImmediate(objectToAnchor.GetComponent<WorldAnchor>());
+                DestroyImmediate(objectToAnchor.GetComponent<UnityEngine.XR.WSA.WorldAnchor>());
                 CreateAnchor();
             }
         }
@@ -440,7 +440,7 @@ namespace SpectatorView
 
         private void SaveAnchor(string anchorName)
         {
-            SV_WorldAnchorManager.Instance.AnchorStore.Save(anchorName, objectToAnchor.GetComponent<WorldAnchor>());
+            SV_WorldAnchorManager.Instance.AnchorStore.Save(anchorName, objectToAnchor.GetComponent<UnityEngine.XR.WSA.WorldAnchor>());
             PlayerPrefs.SetString(SavedAnchorKey, anchorName);
             PlayerPrefs.Save();
         }
@@ -452,7 +452,7 @@ namespace SpectatorView
                 PlayerPrefs.DeleteKey(SavedAnchorKey);
             }
 
-            WorldAnchor currentAnchor = objectToAnchor.GetComponent<WorldAnchor>();
+            UnityEngine.XR.WSA.WorldAnchor currentAnchor = objectToAnchor.GetComponent<UnityEngine.XR.WSA.WorldAnchor>();
             if (currentAnchor != null)
             {
                 DestroyImmediate(currentAnchor);

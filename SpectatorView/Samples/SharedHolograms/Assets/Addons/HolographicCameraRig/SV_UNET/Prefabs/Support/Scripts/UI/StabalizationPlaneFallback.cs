@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using HoloToolkit.Unity.InputModule;
 using HoloToolkit.Unity;
-using UnityEngine.VR.WSA;
+
 
 namespace SpectatorView
 {
@@ -29,7 +29,7 @@ namespace SpectatorView
         {
             if (IsTargetVisible())
             {
-                HolographicSettings.SetFocusPointForFrame(transform.position, -Camera.main.transform.forward);
+                UnityEngine.XR.WSA.HolographicSettings.SetFocusPointForFrame(transform.position, -Camera.main.transform.forward);
             }
         }
 
